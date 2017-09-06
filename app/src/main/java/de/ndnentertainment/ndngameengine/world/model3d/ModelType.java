@@ -5,5 +5,5 @@ package de.ndnentertainment.ndngameengine.world.model3d;
  */
 
 public enum ModelType {
-    STD, PATH
+    STD, PATH, SP
 }

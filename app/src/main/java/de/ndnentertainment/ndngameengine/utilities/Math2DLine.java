@@ -14,27 +14,32 @@ public class Math2DLine {
         this.pointA = pointA;
         this.pointB = pointB;
 
-        b = ((pointA[0]*pointB[1])-(pointA[1]*pointB[0]))/(pointA[0]-pointB[0]);
-        m = (pointB[1]-b)/pointB[0];
+        m = (pointB[1]-pointA[1])/(pointB[0]-pointA[0]);
+        b = pointA[1] - (m * pointA[0]);
     }
 
-    public float getY(float x) {
-        return m * x + b;
+    public Object[] getY(float x) {
+        if((x > pointA[0] && x < pointB[0]) || (x < pointA[0] && x > pointB[0])) {
+            return new Object[] {true, (m * x + b)};
+        }
+        return new Object[] {false};
     }
-    public float getX(float y) {
-        return (((-1)*b)+y)/m;
+    public Object[] getX(float y) {
+        if((y > pointA[1] && y < pointB[1]) || (y < pointA[1] && y > pointB[1])) {
+            return new Object[] {true, (((-1)*b)+y)/m};
+        }
+        return new Object[] {false};
     }
     public Object[] getIntersection(Math2DLine line) {
         if(m == line.getM()) {
             return new Object[] {false};
         }
         float x = (line.getB()-b) / (m-line.getM());
-        float y = getY(x);
-        if( (x > pointA[0] && x < pointB[0]) || (x < pointA[0] && x > pointB[0]) &&
-                (x > line.getPointA()[0] && x < line.getPointB()[0]) || (x < line.getPointA()[0] && x > line.getPointB()[0]) ) {
-            return new Object[] { true, new float[] {x,y} };
+        Object[] y = getY(x);
+        if( (boolean)y[0] && (x > line.getPointA()[0] && x < line.getPointB()[0]) || (x < line.getPointA()[0] && x > line.getPointB()[0]) ) {
+            return new Object[] { true, new float[] {x, (float)y[1]} };
         }
-        return new Object[] { false, new float[] {x,y} };
+        return new Object[] {false};
     }
 
     public float getM() {

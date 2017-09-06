@@ -29,22 +29,29 @@ public class LevelLoader {
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(context.getAssets().open(levelPath)));
 
+            ArrayList<Object[]> pathes = new ArrayList<Object[]>();
+
             Model3DLoader model3DLoader = new Model3DLoader(context, levelPath, 0 , 0, 0);
             while(model3DLoader.hasNext()) {
                 br = model3DLoader.processBufferedReader(br);
 
                 if(model3DLoader.getModelType() == ModelType.PATH) {
-                    for(int i = models.size(); i > 0; i--) {
-                        String modelName = model3DLoader.getModelName();
-                        modelName = modelName.substring(0, modelName.indexOf("_path"));
-                        if(modelName.equals(models.get(i-1).getModelName())) {
-                            models.get(i-1).setCollisionPath(model3DLoader.getVertices());
-                        }
+                    pathes.add(new Object[] {model3DLoader.getModelName(), model3DLoader.getVertices()});
+                }
+                else if(model3DLoader.getModelType() == ModelType.STD){
+                    models.add(new Model3D(context, gameRenderer, model3DLoader));
+                }
+                model3DLoader.cleanUp();
+            }
+
+            //Pathes den Models zuordnen
+            for(Object[] path : pathes) {
+                String modelName = (String)path[0];
+                modelName = modelName.substring(0, modelName.indexOf("_path"));
+                for(Model3D m3d : models) {
+                    if(modelName.equals(m3d.getModelName())) {
+                        m3d.setCollisionPath((float[])path[1]);
                     }
-                } else {
-                    Model3D model3D = new Model3D(context, gameRenderer, model3DLoader);
-                    models.add(model3D);
-                    model3DLoader.cleanUp();
                 }
             }
         } catch (Exception e) {

@@ -76,11 +76,14 @@ public class Model3DLoader {
                 String[] lineElements = line.split(" ");
                 if(line.startsWith("o ")) {
                     modelName = lineElements[1];
-                    if(modelName.indexOf("_~") > -1) {
-                        modelName = modelName.substring(0, modelName.indexOf("_~"));
+                    if(modelName.lastIndexOf("_") > -1) {
+                        modelName = modelName.substring(0, modelName.lastIndexOf("_"));
                     }
                     if(modelName.contains("_path")) {
                         modelType = ModelType.PATH;
+                    }
+                    if(modelName.equals("SP")) {
+                        modelType = ModelType.SP;
                     }
                 }
                 //Indices
@@ -89,6 +92,15 @@ public class Model3DLoader {
                     float y = Float.parseFloat(lineElements[2]);
                     float z = Float.parseFloat(lineElements[3]);
                     verticesAL.add(new Float[] {x, y, z});
+
+                    if(modelType == ModelType.SP) {
+                        vertices = new float[verticesAL.size()*3];
+                        vertices[0] = verticesAL.get(0)[0];
+                        vertices[1] = verticesAL.get(0)[1];
+                        vertices[2] = verticesAL.get(0)[2];
+                        line = br.readLine();
+                        break;
+                    }
                 }
                 //Textures
                 else if(line.startsWith("vt ")) {
