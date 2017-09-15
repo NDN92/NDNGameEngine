@@ -35,7 +35,8 @@ public class Model3D {
     private int indices[];
     private float collisionPath[];
 
-    private float[][] boundingBox;
+    private BoundingBox boundingBox;
+    //private float[][] boundingBox;
 
     //Buffers
     private FloatBuffer vertexBuffer;
@@ -197,7 +198,7 @@ public class Model3D {
             zMin = Math.min(zMin, vertices[i + 2]);
             zMax = Math.max(zMax, vertices[i + 2]);
         }
-        boundingBox = new float[][]{{xMin, xMax}, {yMin, yMax}, {zMin, zMax}};
+        boundingBox = new BoundingBox(xMin, xMax, yMin, yMax, zMin, zMax);
     }
 
 
@@ -528,7 +529,7 @@ public class Model3D {
         return modelType;
     }
 
-    public float[][] getBoundingBox() {
+    public BoundingBox getBoundingBox() {
         return boundingBox;
     }
 }

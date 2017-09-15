@@ -3,11 +3,7 @@ package de.ndnentertainment.ndngameengine.world;
 import android.content.Context;
 import android.opengl.Matrix;
 
-import java.util.ArrayList;
-
 import de.ndnentertainment.ndngameengine.GameRenderer;
-import de.ndnentertainment.ndngameengine.config.Configuration;
-import de.ndnentertainment.ndngameengine.utilities.GameSpeedHandler;
 import de.ndnentertainment.ndngameengine.utilities.Math2DLine;
 import de.ndnentertainment.ndngameengine.world.model3d.Model3D;
 
@@ -50,7 +46,6 @@ public class Meeple {
         this.gameRenderer = gameRenderer;
         model3D = new Model3D(context, gameRenderer, meeplePath);
         physics = new Physics();
-        putOnGround();
     }
 
     public void update() {
@@ -99,7 +94,7 @@ public class Meeple {
         float[][] bb = model3D.getBoundingBox();
         float feetsMP[] = {(bb[0][0]+bb[0][1])/2f + xPos, bb[1][0] + yPos, (bb[2][0]+bb[2][1])/2f + zPos};
 
-        Model3D models[] = gameRenderer.getLevel().getModels();
+        Model3D models[] = gameRenderer.getLevel().getAllModels();
         for(Model3D model : models) {
             float[] cp = model.getCollisionPath();
             if (cp == null) {
@@ -141,7 +136,7 @@ public class Meeple {
         float[] chestEdgeRMP = {bb[0][1] + xPos, (bb[1][0]+bb[1][1])/2f + yPos, (bb[2][0]+bb[2][1])/2f + zPos};
         Math2DLine chestLine = new Math2DLine(chestEdgeLMP, chestEdgeRMP);
 
-        Model3D models[] = gameRenderer.getLevel().getModels();
+        Model3D models[] = gameRenderer.getLevel().getAllModels();
         for(Model3D model : models) {
             float[] cp = model.getCollisionPath();
             if (cp == null) {
