@@ -31,7 +31,7 @@ public class LevelLoader {
 
             ArrayList<Object[]> pathes = new ArrayList<Object[]>();
 
-            Model3DLoader model3DLoader = new Model3DLoader(context, levelPath, 0 , 0, 0);
+            Model3DLoader model3DLoader = new Model3DLoader(context, levelPath, 0, 0, 0);
             while(model3DLoader.hasNext()) {
                 br = model3DLoader.processBufferedReader(br);
 

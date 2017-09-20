@@ -91,7 +91,7 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         Model3D testModel = new Model3D(context, this, "models/affenkopf_wt.obj", "models/affenkopf_wt.png");
         modelsToRender.add(testModel);
         */
-        level = new Level(context, this, "levels/level00c/level00c.obj");
+        level = new Level(context, this, "levels/level00d/level00d.obj");
         meeple = new Meeple(context, this, "meeples/test/test_meeple.obj");
 
         wCamera.setFocusedObject(meeple);

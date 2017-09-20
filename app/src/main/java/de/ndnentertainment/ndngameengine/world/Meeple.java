@@ -5,6 +5,7 @@ import android.opengl.Matrix;
 
 import de.ndnentertainment.ndngameengine.GameRenderer;
 import de.ndnentertainment.ndngameengine.utilities.Math2DLine;
+import de.ndnentertainment.ndngameengine.utilities.Vec3D;
 import de.ndnentertainment.ndngameengine.world.model3d.Model3D;
 
 /**
@@ -16,6 +17,7 @@ public class Meeple {
     private GameRenderer gameRenderer;
     private Model3D model3D;
     private Physics physics;
+    private CollisionDetection collisionD;
 
     private float xPos = 0.0f;
     private float yPos = 0.0f;
@@ -46,6 +48,9 @@ public class Meeple {
         this.gameRenderer = gameRenderer;
         model3D = new Model3D(context, gameRenderer, meeplePath);
         physics = new Physics();
+
+        collisionD = new CollisionDetection(model3D, gameRenderer.getLevel(), physics, new Vec3D(0f,0f,0f));
+        yPos = collisionD.getY_New();
     }
 
     public void update() {
@@ -65,14 +70,19 @@ public class Meeple {
             //physics.x_Accelerate(accelerationX, maxSpeedX);
         }
 
-        xPos = physics.x_Update();
-        yPos = physics.y_Update();
+        if(physics.getX_Stage() != Physics.X_Stages.NO_MOTION) {
+            xPos = physics.x_Update();
+        }
+        if(physics.getY_Stage() != Physics.Y_Stages.NO_MOTION) {
+            yPos = physics.y_Update();
+        }
 
-        rightMovement = (xPos - xPosPrev) > 0;
-        inAirDown = (yPos - yPosPrev) < 0 ;
+        if(physics.getX_Stage() != Physics.X_Stages.NO_MOTION || physics.getY_Stage() != Physics.Y_Stages.NO_MOTION) {
+            collisionD.detectCollision(xPos, xPosPrev, yPos, yPosPrev, zPos, zPosPrev);
+            xPos = collisionD.getX_New();
+            yPos = collisionD.getY_New();
+        }
 
-        putOnGround();
-        checkVCollision();
 
         if(wc.getFocusedObject() == this) {
             wc.moveHorizontally(xPos);
@@ -89,7 +99,7 @@ public class Meeple {
         Matrix.translateM(gameRenderer.getmModel(), 0, xPos, yPos, zPos);
         model3D.draw();
     }
-
+/*
     public boolean putOnGround() {
         float[][] bb = model3D.getBoundingBox();
         float feetsMP[] = {(bb[0][0]+bb[0][1])/2f + xPos, bb[1][0] + yPos, (bb[2][0]+bb[2][1])/2f + zPos};
@@ -163,7 +173,7 @@ public class Meeple {
         }
         return false;
     }
-
+*/
     public void setWalkLeft(boolean walkLeft) {
         this.walkLeft = walkLeft;
         if(walkLeft) physics.x_StartMovement(xPos, accelerationX*(-1), maxSpeedX*(-1));
@@ -176,7 +186,7 @@ public class Meeple {
     }
     public void setJump(boolean jump) {
         this.jump = jump;
-        if(jump && !this.inAir) {
+        if(jump && physics.getY_Stage() == Physics.Y_Stages.NO_MOTION) {
             this.inAir = jump;
             physics.y_StartMovement(yPos, startSpeedY, maxNoGravityTimeY);
         } else {

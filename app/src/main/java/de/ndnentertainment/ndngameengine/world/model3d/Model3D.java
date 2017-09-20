@@ -91,7 +91,7 @@ public class Model3D {
             initTexturedModel(model3DLoader.getTexturePath());
         }
 
-        //createBoundingBox();
+        createBoundingBox();
     }
 
     public Model3D(Context context, GameRenderer gameRenderer, String modelPath) {

@@ -8,40 +8,51 @@ import de.ndnentertainment.ndngameengine.utilities.GameSpeedHandler;
  */
 
 public class Physics {
-    private enum X_Stages {
+    public enum X_Stages {
         ACCELERATED_MOTION,
         STEADY_MOTION,
         DECELERATED_MOTION,
         NO_MOTION
     }
-    private long        x_StartTime;
-    private long        x_CurrTime;
-    private long        x_deltaTime;
-    private float       x_StartSpeed;
-    private float       x_CurrSpeed;
-    private float       x_MaxSpeed;
-    private float       x_Acceleration;
-    private float       x_Start;
-    private float       x_Curr;
-    private X_Stages    x_Stage;
+    public enum X_Directions {
+        LEFT, RIGHT, NONE
+    }
+    private long            x_StartTime;
+    private long            x_CurrTime;
+    private long            x_deltaTime;
+    private float           x_StartSpeed;
+    private float           x_CurrSpeed;
+    private float           x_MaxSpeed;
+    private float           x_Acceleration;
+    private float           x_Start;
+    private float           x_Curr;
+    private X_Stages        x_Stage;
+    private X_Directions    x_Direction;
 
-    private enum Y_Stages {
+    public enum Y_Stages {
         STEADY_MOTION,
         DECELERATED_MOTION,
         NO_MOTION
     }
-    private long        y_StartTime;
-    private long        y_CurrTime;
-    private long        y_deltaTime;
-    private float       y_MaxNoGravityTime;
-    private float       y_StartSpeed;
-    private float       y_Start;
-    private float       y_Curr;
-    private Y_Stages    y_Stage;
+    public enum Y_Directions {
+        UP, DOWN, NONE
+    }
+    private long            y_StartTime;
+    private long            y_CurrTime;
+    private long            y_deltaTime;
+    private float           y_MaxNoGravityTime;
+    private float           y_StartSpeed;
+    private float           y_Start;
+    private float           y_Curr;
+    private Y_Stages        y_Stage;
+    private Y_Directions    y_Direction;
 
     public Physics() {
         x_Stage = X_Stages.NO_MOTION;
         y_Stage = Y_Stages.NO_MOTION;
+
+        x_Direction = X_Directions.NONE;
+        y_Direction = Y_Directions.NONE;
     }
 
     public void x_StartMovement(float x_Start, float x_Acceleration, float x_MaxSpeed) {
@@ -51,6 +62,28 @@ public class Physics {
         this.x_StartTime = System.currentTimeMillis();
         this.x_StartSpeed = this.x_CurrSpeed;
         this.x_Stage = X_Stages.ACCELERATED_MOTION;
+
+        if(x_Acceleration < 0) {
+            this.x_Direction = X_Directions.LEFT;
+        } else if(x_Acceleration > 0) {
+            this.x_Direction = X_Directions.RIGHT;
+        } else {
+            this.x_Direction = X_Directions.NONE;
+        }
+    }
+    public void x_EndMovement() {
+        if(x_Stage != X_Stages.NO_MOTION) {
+            x_StartTime = x_CurrTime - x_deltaTime;
+            x_StartSpeed = x_CurrSpeed;
+            x_Start = x_Curr;
+            x_Stage = X_Stages.DECELERATED_MOTION;
+        }
+    }
+    public void x_StopMovement() {
+        x_Stage = X_Stages.NO_MOTION;
+        x_Acceleration = 0f;
+        x_CurrSpeed = 0f;
+        x_Direction = X_Directions.NONE;
     }
     public void x_Accelerate(float acceleration, float maxSpeed) {
         this.x_Acceleration = acceleration;
@@ -125,15 +158,6 @@ public class Physics {
 
         return x_Curr;
     }
-    public void x_EndMovement() {
-        x_StartTime = x_CurrTime - x_deltaTime;
-        x_StartSpeed = x_CurrSpeed;
-        x_Start = x_Curr;
-        x_Stage = X_Stages.DECELERATED_MOTION;
-    }
-    public void x_StopMovement() {
-        this.x_Stage = X_Stages.NO_MOTION;
-    }
 
     public void y_StartMovement(float y_Start,float y_StartSpeed, float y_MaxNoGravityTime) {
         this.y_Start = y_Start;
@@ -141,9 +165,14 @@ public class Physics {
         this.y_MaxNoGravityTime = y_MaxNoGravityTime;
         this.y_StartTime = System.currentTimeMillis();
         this.y_Stage = Y_Stages.STEADY_MOTION;
+
+        y_Direction = Y_Directions.UP;
     }
     public void y_EndMovement() {
         this.y_MaxNoGravityTime = 0l;
+    }
+    public void y_StopMovement() {
+        this.y_Stage = Y_Stages.NO_MOTION;
     }
     public void y_Accelerate(float y_StartSpeed, float y_MaxNoGravityTime) {
         this.y_StartSpeed = y_StartSpeed;
@@ -191,5 +220,21 @@ public class Physics {
         }
 
         return y_Curr;
+    }
+
+    public X_Stages getX_Stage() {
+        return x_Stage;
+    }
+
+    public Y_Stages getY_Stage() {
+        return y_Stage;
+    }
+
+    public X_Directions getX_Direction() {
+        return x_Direction;
+    }
+
+    public Y_Directions getY_Direction() {
+        return y_Direction;
     }
 }
