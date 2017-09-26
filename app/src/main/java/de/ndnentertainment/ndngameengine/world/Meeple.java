@@ -4,7 +4,6 @@ import android.content.Context;
 import android.opengl.Matrix;
 
 import de.ndnentertainment.ndngameengine.GameRenderer;
-import de.ndnentertainment.ndngameengine.utilities.Math2DLine;
 import de.ndnentertainment.ndngameengine.utilities.Vec3D;
 import de.ndnentertainment.ndngameengine.world.model3d.Model3D;
 
@@ -17,7 +16,7 @@ public class Meeple {
     private GameRenderer gameRenderer;
     private Model3D model3D;
     private Physics physics;
-    private CollisionDetection collisionD;
+    private CollisionDetection collDec;
 
     private float xPos = 0.0f;
     private float yPos = 0.0f;
@@ -49,26 +48,12 @@ public class Meeple {
         model3D = new Model3D(context, gameRenderer, meeplePath);
         physics = new Physics();
 
-        collisionD = new CollisionDetection(model3D, gameRenderer.getLevel(), physics, new Vec3D(0f,0f,0f));
-        yPos = collisionD.getY_New();
+        collDec = new CollisionDetection(model3D, gameRenderer.getLevel(), physics, new Vec3D(0f,0f,0f));
+        yPos = collDec.getY_New();
     }
 
     public void update() {
         WorldCamera wc = gameRenderer.getwCamera();
-
-        if(inAir) {
-            //physics.y_Accelerate(startSpeedY, maxNoGravityTimeY);
-        }
-        if(duck) {
-
-        }
-
-        if(walkLeft) {
-            //physics.x_Accelerate(accelerationX*(-1), maxSpeedX*(-1));
-        }
-        if(walkRight) {
-            //physics.x_Accelerate(accelerationX, maxSpeedX);
-        }
 
         if(physics.getX_Stage() != Physics.X_Stages.NO_MOTION) {
             xPos = physics.x_Update();
@@ -78,9 +63,9 @@ public class Meeple {
         }
 
         if(physics.getX_Stage() != Physics.X_Stages.NO_MOTION || physics.getY_Stage() != Physics.Y_Stages.NO_MOTION) {
-            collisionD.detectCollision(xPos, xPosPrev, yPos, yPosPrev, zPos, zPosPrev);
-            xPos = collisionD.getX_New();
-            yPos = collisionD.getY_New();
+            collDec.detectCollision(xPos, xPosPrev, yPos, yPosPrev, zPos, zPosPrev);
+            xPos = collDec.getX_New();
+            yPos = collDec.getY_New();
         }
 
 
@@ -186,7 +171,7 @@ public class Meeple {
     }
     public void setJump(boolean jump) {
         this.jump = jump;
-        if(jump && physics.getY_Stage() == Physics.Y_Stages.NO_MOTION) {
+        if(jump && (physics.getY_Stage() == Physics.Y_Stages.NO_MOTION || physics.isY_JumpExceptionallyAllowed())) {
             this.inAir = jump;
             physics.y_StartMovement(yPos, startSpeedY, maxNoGravityTimeY);
         } else {

@@ -3,6 +3,7 @@ package de.ndnentertainment.ndngameengine.world;
 import java.util.ArrayList;
 
 import de.ndnentertainment.ndngameengine.utilities.Math2DLine;
+import de.ndnentertainment.ndngameengine.utilities.PointWithInfos;
 import de.ndnentertainment.ndngameengine.utilities.Vec2D;
 import de.ndnentertainment.ndngameengine.utilities.Vec3D;
 import de.ndnentertainment.ndngameengine.world.model3d.BoundingBox;
@@ -123,28 +124,28 @@ public class CollisionDetection {
         Model3D[] relevantCollisonModels = getRelevantCollisonModels();
         Object[] intersectionPoints = getIntersectionPoints(relevantCollisonModels);
 
-        ArrayList<ArrayList<Vec2D>> feetsXIntersections = (ArrayList<ArrayList<Vec2D>>)intersectionPoints[0];
+        ArrayList<ArrayList<PointWithInfos>> feetsXIntersections = (ArrayList<ArrayList<PointWithInfos>>)intersectionPoints[0];
         ArrayList<ArrayList<Vec2D>> chestIntersections = (ArrayList<ArrayList<Vec2D>>)intersectionPoints[1];
         ArrayList<ArrayList<Vec2D>> feetsHeadIntersections = (ArrayList<ArrayList<Vec2D>>)intersectionPoints[2];
 
-        Vec2D nearestPointToFeets = null;
-        Vec2D nearestPointToHead = null;
-        for(ArrayList<Vec2D> points : feetsXIntersections) {
-            for(Vec2D point : points) {
+        PointWithInfos nearestPointToFeets = null;
+        PointWithInfos nearestPointToHead = null;
+        for(ArrayList<PointWithInfos> points : feetsXIntersections) {
+            for(PointWithInfos pointWI : points) {
                 if(nearestPointToFeets == null && nearestPointToHead == null) {
-                    nearestPointToFeets = point;
-                    nearestPointToHead = point;
+                    nearestPointToFeets = pointWI;
+                    nearestPointToHead = pointWI;
                 } else {
                     float distanceFeets1 = Math.abs(nearestPointToFeets.y-feetsMP_Curr.y);
-                    float distanceFeets2 = Math.abs(point.y-feetsMP_Curr.y);
+                    float distanceFeets2 = Math.abs(pointWI.y-feetsMP_Curr.y);
                     if(distanceFeets1 > distanceFeets2) {
-                        nearestPointToFeets = point;
+                        nearestPointToFeets = pointWI;
                     }
 
                     float distanceHead1 = Math.abs(nearestPointToHead.y-headMP_Curr.y);
-                    float distanceHead2 = Math.abs(point.y-headMP_Curr.y);
+                    float distanceHead2 = Math.abs(pointWI.y-headMP_Curr.y);
                     if(distanceHead1 > distanceHead2) {
-                        nearestPointToHead = point;
+                        nearestPointToHead = pointWI;
                     }
                 }
             }
@@ -190,10 +191,19 @@ public class CollisionDetection {
                 || (!inAir && !isHeadIntersection && isChestLIntersection && rightMovement && !isChestRIntersection)
                 || (!inAir && !isHeadIntersection && !isChestLIntersection && isChestRIntersection && leftMovement) ) {
             x_New = nearestPointToFeets.x;
-            y_New = nearestPointToFeets.y+ feetsYOffset;
+            y_New = nearestPointToFeets.y + feetsYOffset;
+
+            //Klippe
+            if( (y_Curr - y_New) > 0.4 ) {
+                physics.y_StartMovement(y_Curr, 0f, 0f);
+                physics.setY_JumpExceptionallyAllowed(true);
+                x_New = x_Curr;
+                y_New = y_Curr;
+                return;
+            }
         }
         //Auf dem Boden - Wand Links o. Rechts
-        if(!inAir && (isChestLIntersection && leftMovement) || (isChestRIntersection && rightMovement)) {
+        else if(!inAir && (isChestLIntersection && leftMovement) || (isChestRIntersection && rightMovement)) {
             physics.x_StopMovement();
             x_New = x_Prev;
             y_New = y_Prev;
@@ -233,7 +243,7 @@ public class CollisionDetection {
         return relevantCollisonModels.toArray(new Model3D[relevantCollisonModels.size()]);
     }
     private Object[] getIntersectionPoints(Model3D[] relevantCollisonModels) {
-        ArrayList<ArrayList<Vec2D>> feetsXIntersections = new ArrayList<>();
+        ArrayList<ArrayList<PointWithInfos>> feetsXIntersections = new ArrayList<>();
         ArrayList<ArrayList<Vec2D>> chestIntersections = new ArrayList<>();
         ArrayList<ArrayList<Vec2D>> feetsHeadIntersections = new ArrayList<>();
 
@@ -241,7 +251,7 @@ public class CollisionDetection {
         Math2DLine feetsHeadLine = new Math2DLine(feetsMP_Curr, headMP_Curr);
 
         for(int i = 0; i < relevantCollisonModels.length; i++) {
-            feetsXIntersections.add(i, new ArrayList<Vec2D>());
+            feetsXIntersections.add(i, new ArrayList<PointWithInfos>());
             chestIntersections.add(i, new ArrayList<Vec2D>());
             feetsHeadIntersections.add(i, new ArrayList<Vec2D>());
 
@@ -259,7 +269,7 @@ public class CollisionDetection {
                 if((A.x <= feetsMP_Curr.x && B.x > feetsMP_Curr.x) || (B.x < feetsMP_Curr.x && A.x >= feetsMP_Curr.x)) {
                     Object[] result_feetsXIntersection = currLine.getY(feetsMP_Curr.x);
                     if((boolean)result_feetsXIntersection[0]) {
-                        feetsXIntersections.get(i).add( new Vec2D(feetsMP_Curr.x, (float)result_feetsXIntersection[1]) );
+                        feetsXIntersections.get(i).add( new PointWithInfos(new Vec2D(feetsMP_Curr.x, (float)result_feetsXIntersection[1]), currLine.getM()) );
                     }
                 }
                 if( ((A.x >= chestLMP_Curr.x && A.x < chestRMP_Curr.x) || (B.x >= chestLMP_Curr.x && B.x < chestRMP_Curr.x))
