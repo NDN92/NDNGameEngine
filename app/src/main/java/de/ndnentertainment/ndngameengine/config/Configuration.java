@@ -5,6 +5,6 @@ package de.ndnentertainment.ndngameengine.config;
  */
 
 public final class Configuration {
-    public static final int FPS = 60;
+    public static final int FPS = 30;
     public static final int GRAVITY = 60;
 }

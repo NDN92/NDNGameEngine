@@ -18,6 +18,17 @@ public class Meeple {
     private Physics physics;
     private CollisionDetection collDec;
 
+    private float[] vertices = { -1f, -1f, 0f,
+                                  1f, -1f, 0f,
+                                  1f,  1f, 0f,
+                                 -1f,  1f, 0f  };
+    private float[] textures = { 0f, 1f,
+                                 1f, 1f,
+                                 1f, 0f,
+                                 0f, 0f  };
+    private int[] indices = { 0, 1, 3,
+                              1, 2, 3  };
+
     private float xPos = 0.0f;
     private float yPos = 0.0f;
     private float zPos = 0.0f;
@@ -45,7 +56,8 @@ public class Meeple {
     public Meeple(Context context, GameRenderer gameRenderer, String meeplePath) {
         this.context = context;
         this.gameRenderer = gameRenderer;
-        model3D = new Model3D(context, gameRenderer, meeplePath);
+        //model3D = new Model3D(context, gameRenderer, meeplePath);
+        model3D = new Model3D(context, gameRenderer, "Meeple", vertices, textures, indices, meeplePath);
         physics = new Physics();
 
         collDec = new CollisionDetection(model3D, gameRenderer.getLevel(), physics, new Vec3D(0f,0f,0f));

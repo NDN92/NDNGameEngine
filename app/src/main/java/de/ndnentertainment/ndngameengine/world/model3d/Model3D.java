@@ -182,6 +182,27 @@ public class Model3D {
 
         createBoundingBox();
     }
+    public Model3D(Context context, GameRenderer gameRenderer, String modelName, float[] vertices, float[] textures, int[] indices, String texturePath) {
+        this.modelName = modelName;
+        this.context = context;
+        this.gameRenderer = gameRenderer;
+        this.vertices = vertices;
+        this.textures = textures;
+        this.indices = indices;
+
+        if(textures == null) {
+            sType = ShaderType.V_VCI;
+        } else {
+            sType = ShaderType.V_VTI;
+        }
+
+        /** Vertices, Texture, Indices **/
+        if(sType == ShaderType.V_VTI) {
+            initTexturedModel(texturePath);
+        }
+
+        createBoundingBox();
+    }
 
     private void createBoundingBox() {
         float xMin = Float.MAX_VALUE;

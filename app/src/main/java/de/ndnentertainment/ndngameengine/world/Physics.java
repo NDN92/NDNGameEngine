@@ -27,6 +27,7 @@ public class Physics {
     private float           x_Curr;
     private X_Stages        x_Stage;
     private X_Directions    x_Direction;
+    private int             x_Counter;
 
     public enum Y_Stages {
         STEADY_MOTION,
@@ -45,6 +46,7 @@ public class Physics {
     private float           y_Curr;
     private Y_Stages        y_Stage;
     private Y_Directions    y_Direction;
+    private int             y_Counter;
     private boolean y_JumpExceptionallyAllowed;
 
     public Physics() {
@@ -64,6 +66,7 @@ public class Physics {
         this.x_StartTime = System.currentTimeMillis();
         this.x_StartSpeed = this.x_CurrSpeed;
         this.x_Stage = X_Stages.ACCELERATED_MOTION;
+        this.x_Counter = 0;
 
         if(x_Acceleration < 0) {
             this.x_Direction = X_Directions.LEFT;
@@ -92,6 +95,8 @@ public class Physics {
         this.x_MaxSpeed = maxSpeed;
     }
     public float x_Update() {
+        x_Counter++;
+
         if(x_Stage == X_Stages.NO_MOTION) {
             x_CurrSpeed = 0f;
             return x_Curr;
@@ -100,6 +105,11 @@ public class Physics {
         x_deltaTime = x_CurrTime;
         x_CurrTime = System.currentTimeMillis();
         x_deltaTime = x_CurrTime - x_deltaTime;
+        //Fehler o. Debug
+        if(x_Counter > 1 && x_deltaTime > 1000) {
+            x_StartTime += x_deltaTime;
+            return x_Curr;
+        }
 
         float t;
         float s0;
@@ -167,6 +177,7 @@ public class Physics {
         this.y_MaxNoGravityTime = y_MaxNoGravityTime;
         this.y_StartTime = System.currentTimeMillis();
         this.y_Stage = Y_Stages.STEADY_MOTION;
+        this.y_Counter = 0;
 
         y_Direction = Y_Directions.UP;
     }
@@ -184,9 +195,17 @@ public class Physics {
         this.y_MaxNoGravityTime = y_MaxNoGravityTime;
     }
     public float y_Update() {
+        y_Counter++;
+
         y_deltaTime = y_CurrTime;
         y_CurrTime = System.currentTimeMillis();
         y_deltaTime = y_CurrTime - y_deltaTime;
+
+        //Fehler o. Debug
+        if(y_Counter > 1 && y_deltaTime > 1000) {
+            y_StartTime += y_deltaTime;
+            return y_Curr;
+        }
 
         float t;
         float v0;

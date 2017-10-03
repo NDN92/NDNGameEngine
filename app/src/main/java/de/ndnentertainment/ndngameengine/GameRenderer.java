@@ -66,6 +66,10 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         GLES20.glDepthFunc(GLES20.GL_LESS);
 
+        //Enable Alpha Blending
+        GLES20.glEnable(GLES20.GL_BLEND);
+        GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+
 
         // View/Camera einrichten
 
@@ -92,7 +96,7 @@ public class GameRenderer implements GLSurfaceView.Renderer {
         modelsToRender.add(testModel);
         */
         level = new Level(context, this, "levels/level00e/level00e.obj");
-        meeple = new Meeple(context, this, "meeples/test/test_meeple.obj");
+        meeple = new Meeple(context, this, "meeples/test/mario.png");
 
         wCamera.setFocusedObject(meeple);
 

@@ -128,6 +128,7 @@ public class CollisionDetection {
         ArrayList<ArrayList<Vec2D>> chestIntersections = (ArrayList<ArrayList<Vec2D>>)intersectionPoints[1];
         ArrayList<ArrayList<Vec2D>> feetsHeadIntersections = (ArrayList<ArrayList<Vec2D>>)intersectionPoints[2];
 
+        PointWithInfos onComingPoint = null;
         PointWithInfos nearestPointToFeets = null;
         PointWithInfos nearestPointToHead = null;
         for(ArrayList<PointWithInfos> points : feetsXIntersections) {
@@ -146,6 +147,11 @@ public class CollisionDetection {
                     float distanceHead2 = Math.abs(pointWI.y-headMP_Curr.y);
                     if(distanceHead1 > distanceHead2) {
                         nearestPointToHead = pointWI;
+                    }
+                }
+                if( (pointWI.y < feetsMP_Prev.y && pointWI.y > feetsMP_Curr.y) || (pointWI.y > feetsMP_Prev.y && pointWI.y < feetsMP_Curr.y) ) {
+                    if(onComingPoint == null || onComingPoint.y < pointWI.y) {
+                        onComingPoint = pointWI;
                     }
                 }
             }
@@ -211,19 +217,26 @@ public class CollisionDetection {
         //In der Luft - Wand links
         if(inAir && isChestLIntersection && !rightMovement) {
             physics.x_StopMovement();
-            x_New = chestIntersectionPoint.x+chestToFeetsXOffset;
+            x_New = chestIntersectionPoint.x + chestToFeetsXOffset;
         }
         //In der Luft - Wand Rechts
         else if(inAir && isChestRIntersection && !leftMovement) {
             physics.x_StopMovement();
-            x_New = chestIntersectionPoint.x-chestToFeetsXOffset;
+            x_New = chestIntersectionPoint.x - chestToFeetsXOffset;
+        }
+        //In der Luft - Decken Berührung
+        if(inAir && isHeadIntersection) {
+            physics.y_StopMovement();
+            physics.y_StartMovement(y_Prev, 0f, 0f);
+            x_New = x_Prev;
+            y_New = y_Prev;
         }
         //Aufkommen auf den Boden nach dem Sprung
-        if(inAir && inAirDown && y_Curr < (nearestPointToFeets.y+feetsYOffset) ) {
+        if(onComingPoint != null && inAir && inAirDown /*&& y_Curr < (onComingPoint.y+feetsYOffset)*/ ) {
             physics.y_EndMovement();
             physics.y_StopMovement();
-            x_New = nearestPointToFeets.x;
-            y_New = nearestPointToFeets.y+ feetsYOffset;
+            x_New = onComingPoint.x;
+            y_New = onComingPoint.y + feetsYOffset;
         }
 
     }
