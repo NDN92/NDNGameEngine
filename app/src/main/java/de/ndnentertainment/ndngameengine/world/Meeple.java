@@ -6,6 +6,8 @@ import android.opengl.Matrix;
 import de.ndnentertainment.ndngameengine.GameRenderer;
 import de.ndnentertainment.ndngameengine.utilities.Vec3D;
 import de.ndnentertainment.ndngameengine.world.model3d.Model3D;
+import de.ndnentertainment.ndngameengine.world.physic.Physic;
+import de.ndnentertainment.ndngameengine.world.physic.Motion;
 
 /**
  * Created by nickn on 06.08.2017.
@@ -15,7 +17,8 @@ public class Meeple {
     private Context context;
     private GameRenderer gameRenderer;
     private Model3D model3D;
-    private Physics physics;
+    private Physic physic;
+    private Motion motion;
     private CollisionDetection collDec;
 
     private float[] vertices = { -1f, -1f, 0f,
@@ -58,15 +61,24 @@ public class Meeple {
         this.gameRenderer = gameRenderer;
         //model3D = new Model3D(context, gameRenderer, meeplePath);
         model3D = new Model3D(context, gameRenderer, "Meeple", vertices, textures, indices, meeplePath);
+
+        /*
         physics = new Physics();
 
         collDec = new CollisionDetection(model3D, gameRenderer.getLevel(), physics, new Vec3D(0f,0f,0f));
         yPos = collDec.getY_New();
+        */
+
+        physic = new Physic(model3D, gameRenderer.getLevel(), gameRenderer.getGsh(), new Vec3D(30f, 10f, 0f));
+        xPos = physic.getXPos();
+        yPos = physic.getYPos();
+        zPos = physic.getZPos();
     }
 
     public void update() {
         WorldCamera wc = gameRenderer.getwCamera();
 
+        /*
         if(physics.getX_Stage() != Physics.X_Stages.NO_MOTION) {
             xPos = physics.x_Update();
         }
@@ -79,6 +91,11 @@ public class Meeple {
             xPos = collDec.getX_New();
             yPos = collDec.getY_New();
         }
+        */
+        physic.update(walkLeft, walkRight, jump, duck);
+        //xPos = physic.getXPos();
+        //yPos = physic.getYPos();
+        //zPos = physic.getZPos();
 
 
         if(wc.getFocusedObject() == this) {
@@ -173,22 +190,12 @@ public class Meeple {
 */
     public void setWalkLeft(boolean walkLeft) {
         this.walkLeft = walkLeft;
-        if(walkLeft) physics.x_StartMovement(xPos, accelerationX*(-1), maxSpeedX*(-1));
-        else         physics.x_EndMovement();
     }
     public void setWalkRight(boolean walkRight) {
         this.walkRight = walkRight;
-        if(walkRight) physics.x_StartMovement(xPos, accelerationX, maxSpeedX);
-        else          physics.x_EndMovement();
     }
     public void setJump(boolean jump) {
         this.jump = jump;
-        if(jump && (physics.getY_Stage() == Physics.Y_Stages.NO_MOTION || physics.isY_JumpExceptionallyAllowed())) {
-            this.inAir = jump;
-            physics.y_StartMovement(yPos, startSpeedY, maxNoGravityTimeY);
-        } else {
-            physics.y_EndMovement();
-        }
     }
     public void setDuck(boolean duck) {
         this.duck = duck;

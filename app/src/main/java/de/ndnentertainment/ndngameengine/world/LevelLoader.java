@@ -39,7 +39,7 @@ public class LevelLoader {
                     pathes.add(new Object[] {model3DLoader.getModelName(), model3DLoader.getVertices()});
                 }
                 else if(model3DLoader.getModelType() == ModelType.STD){
-                    models.add(new Model3D(context, gameRenderer, model3DLoader));
+                    models.add(new Model3D(context, gameRenderer, model3DLoader, models.size()));
                 }
                 model3DLoader.cleanUp();
             }

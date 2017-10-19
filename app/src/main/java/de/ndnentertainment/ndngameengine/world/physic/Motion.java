@@ -1,4 +1,4 @@
-package de.ndnentertainment.ndngameengine.world;
+package de.ndnentertainment.ndngameengine.world.physic;
 
 import de.ndnentertainment.ndngameengine.config.Configuration;
 
@@ -6,7 +6,7 @@ import de.ndnentertainment.ndngameengine.config.Configuration;
  * Created by nickn on 06.08.2017.
  */
 
-public class Physics {
+public class Motion {
     public enum X_Stages {
         ACCELERATED_MOTION,
         STEADY_MOTION,
@@ -49,7 +49,7 @@ public class Physics {
     private int             y_Counter;
     private boolean y_JumpExceptionallyAllowed;
 
-    public Physics() {
+    public Motion() {
         x_Stage = X_Stages.NO_MOTION;
         y_Stage = Y_Stages.NO_MOTION;
 

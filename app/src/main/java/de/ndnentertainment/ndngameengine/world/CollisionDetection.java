@@ -8,6 +8,7 @@ import de.ndnentertainment.ndngameengine.utilities.Vec2D;
 import de.ndnentertainment.ndngameengine.utilities.Vec3D;
 import de.ndnentertainment.ndngameengine.world.model3d.BoundingBox;
 import de.ndnentertainment.ndngameengine.world.model3d.Model3D;
+import de.ndnentertainment.ndngameengine.world.physic.Motion;
 
 /**
  * Created by nickn on 12.09.2017.
@@ -16,7 +17,7 @@ import de.ndnentertainment.ndngameengine.world.model3d.Model3D;
 public class CollisionDetection {
     private Model3D model3d;
     private Level level;
-    private Physics physics;
+    private Motion motion;
 
     private Vec3D feetsMP;
     private Vec3D chestLMP;
@@ -48,10 +49,10 @@ public class CollisionDetection {
     private float z_New;
 
 
-    public CollisionDetection(Model3D model3D, Level level, Physics physics, Vec3D startPoint) {
+    public CollisionDetection(Model3D model3D, Level level, Motion motion, Vec3D startPoint) {
         this.model3d = model3D;
         this.level = level;
-        this.physics = physics;
+        this.motion = motion;
 
         BoundingBox bb = model3D.getBoundingBox();
         this.feetsMP  = new Vec3D ((bb.getMinX()+bb.getMaxX())/2f,  bb.getMinY()                 , (bb.getMinZ()+bb.getMaxZ())/2f);
@@ -113,8 +114,8 @@ public class CollisionDetection {
 
         Math2DLine chestLine_Curr = new Math2DLine(chestLMP_Curr, chestRMP_Curr);
 
-        boolean rightMovement = physics.getX_Direction() == Physics.X_Directions.RIGHT;
-        boolean leftMovement = physics.getX_Direction() == Physics.X_Directions.LEFT;
+        boolean rightMovement = motion.getX_Direction() == Motion.X_Directions.RIGHT;
+        boolean leftMovement = motion.getX_Direction() == Motion.X_Directions.LEFT;
         boolean inAir = y_Curr != y_Prev;
         boolean inAirDown = (y_Curr - y_Prev) < 0 ;
         boolean inAirUp = !inAirDown;
@@ -201,8 +202,8 @@ public class CollisionDetection {
 
             //Klippe
             if( (y_Curr - y_New) > 0.4 ) {
-                physics.y_StartMovement(y_Curr, 0f, 0f);
-                physics.setY_JumpExceptionallyAllowed(true);
+                motion.y_StartMovement(y_Curr, 0f, 0f);
+                motion.setY_JumpExceptionallyAllowed(true);
                 x_New = x_Curr;
                 y_New = y_Curr;
                 return;
@@ -210,31 +211,31 @@ public class CollisionDetection {
         }
         //Auf dem Boden - Wand Links o. Rechts
         else if(!inAir && (isChestLIntersection && leftMovement) || (isChestRIntersection && rightMovement)) {
-            physics.x_StopMovement();
+            motion.x_StopMovement();
             x_New = x_Prev;
             y_New = y_Prev;
         }
         //In der Luft - Wand links
         if(inAir && isChestLIntersection && !rightMovement) {
-            physics.x_StopMovement();
+            motion.x_StopMovement();
             x_New = chestIntersectionPoint.x + chestToFeetsXOffset;
         }
         //In der Luft - Wand Rechts
         else if(inAir && isChestRIntersection && !leftMovement) {
-            physics.x_StopMovement();
+            motion.x_StopMovement();
             x_New = chestIntersectionPoint.x - chestToFeetsXOffset;
         }
         //In der Luft - Decken Berührung
         if(inAir && isHeadIntersection) {
-            physics.y_StopMovement();
-            physics.y_StartMovement(y_Prev, 0f, 0f);
+            motion.y_StopMovement();
+            motion.y_StartMovement(y_Prev, 0f, 0f);
             x_New = x_Prev;
             y_New = y_Prev;
         }
         //Aufkommen auf den Boden nach dem Sprung
         if(onComingPoint != null && inAir && inAirDown /*&& y_Curr < (onComingPoint.y+feetsYOffset)*/ ) {
-            physics.y_EndMovement();
-            physics.y_StopMovement();
+            motion.y_EndMovement();
+            motion.y_StopMovement();
             x_New = onComingPoint.x;
             y_New = onComingPoint.y + feetsYOffset;
         }

@@ -27,6 +27,7 @@ public class Model3D {
 
     private String modelName;
     private ModelType modelType;
+    private int modelIndex;
 
     private float vertices[];
     private float colors[];
@@ -70,6 +71,37 @@ public class Model3D {
 
         modelName = model3DLoader.getModelName();
         modelType = model3DLoader.getModelType();
+
+        vertices = model3DLoader.getVertices();
+        textures = model3DLoader.getTextures();
+        normals = model3DLoader.getNormals();
+        indices = model3DLoader.getIndices();
+
+        if(textures == null) {
+            sType = ShaderType.V_VCI;
+        } else {
+            sType = ShaderType.V_VTI;
+        }
+
+        /** Vertices, Colors, Indices **/
+        if(sType == ShaderType.V_VCI) {
+            initColoredModel();
+
+            /** Vertices, Texture, Indices **/
+        } else if(sType == ShaderType.V_VTI) {
+            initTexturedModel(model3DLoader.getTexturePath());
+        }
+
+        createBoundingBox();
+    }
+
+    public Model3D(Context context, GameRenderer gameRenderer, Model3DLoader model3DLoader, int modelIndex) {
+        this.context = context;
+        this.gameRenderer = gameRenderer;
+
+        modelName = model3DLoader.getModelName();
+        modelType = model3DLoader.getModelType();
+        modelIndex = modelIndex;
 
         vertices = model3DLoader.getVertices();
         textures = model3DLoader.getTextures();
@@ -548,6 +580,10 @@ public class Model3D {
 
     public ModelType getModelType() {
         return modelType;
+    }
+
+    public int getModelIndex() {
+        return modelIndex;
     }
 
     public BoundingBox getBoundingBox() {
